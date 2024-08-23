@@ -8,9 +8,12 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <condition_variable>
 #include <cstring>
 #include <iostream>
+#include <mutex>
 #include <string>
+#include <thread>
 
 #define MAX_LENGHT 64
 #define PORT 8080
