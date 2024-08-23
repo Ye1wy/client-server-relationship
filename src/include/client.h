@@ -18,8 +18,8 @@ class Client {
 
  private:
   std::string data_;
-  std::mutex mtx;
-  std::condition_variable cv;
+  std::mutex mtx_;
+  std::condition_variable cv_;
 
   bool data_status_;
   Socket client_socket_;
