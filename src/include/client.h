@@ -1,13 +1,7 @@
 #ifndef CPP_CLIENT_SERVER_RELATIONSHIP_INCLUDE_CLIENT_H
 #define CPP_CLIENT_SERVER_RELATIONSHIP_INCLUDE_CLIENT_H
 
-#include <sys/socket.h>
-
-#include <algorithm>
-#include <iostream>
-#include <string>
-
-#define MAX_LENGHT 64
+#include "include.h"
 
 namespace chain {
 
@@ -17,6 +11,8 @@ class Client {
   ~Client() = default;
 
   void DataCatch(std::string incomming);
+  bool Disconnect();
+  bool SendData() const;
 
  private:
   std::string data_;

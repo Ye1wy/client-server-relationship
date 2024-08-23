@@ -1,4 +1,4 @@
-#include "include/client.h"
+#include "../include/client.h"
 
 chain::Client::Client() : data_(std::string()) {};
 
@@ -36,7 +36,7 @@ bool chain::Client::Valid(const std::string verifiable) const noexcept {
     return false;
   }
 
-  if (IsDigits(verifiable)) {
+  if (!IsDigits(verifiable)) {
     return false;
   }
 
