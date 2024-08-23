@@ -30,7 +30,7 @@ class Socket {
 
   void Bind();
   void Listen();
-  Socket Accept();
+  FileDescriptorType Accept();
 
   void Connect();
 

@@ -51,12 +51,12 @@ void chain::Socket::Listen() {
   }
 }
 
-chain::Socket chain::Socket::Accept() {
-  Socket new_socket;
-  new_socket.fd_ =
+chain::FileDescriptorType chain::Socket::Accept() {
+  FileDescriptorType new_socket;
+  new_socket =
       accept(fd_, reinterpret_cast<sockaddr *>(&address_f_), &addrlen_);
 
-  if (new_socket.fd_ < 0) {
+  if (new_socket < 0) {
     throw "Accept failed";
   }
 
