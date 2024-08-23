@@ -17,12 +17,26 @@ chain::Socket::Socket(FileDescriptorType fd, AddressFamily address_family,
 
   address_f_.sin_family = address_family;
   address_f_.sin_port = htons(PORT);
-  addrlen = sizeof(address_f_);
+  addrlen_ = sizeof(address_f_);
 }
+
+chain::Socket::Socket(Socket &&other) {
+  socket_type_ = other.socket_type_;
+  fd_ = other.fd_;
+  address_f_ = other.address_f_;
+  addrlen_ = other.addrlen_;
+
+  other.socket_type_ = SocketType();
+  other.fd_ = FileDescriptorType();
+  other.address_f_ = Address();
+  other.addrlen_ = socklen_t();
+}
+
+chain::Socket::~Socket() { Close(); }
 
 void chain::Socket::Bind() {
   int status =
-      bind(fd_, reinterpret_cast<sockaddr*>(&address_f_), sizeof(address_f_));
+      bind(fd_, reinterpret_cast<sockaddr *>(&address_f_), sizeof(address_f_));
 
   if (status < 0) {
     throw "Bind failed";
@@ -40,7 +54,7 @@ void chain::Socket::Listen() {
 chain::Socket chain::Socket::Accept() {
   Socket new_socket;
   new_socket.fd_ =
-      accept(fd_, reinterpret_cast<sockaddr*>(&address_f_), &addrlen);
+      accept(fd_, reinterpret_cast<sockaddr *>(&address_f_), &addrlen_);
 
   if (new_socket.fd_ < 0) {
     throw "Accept failed";
@@ -50,7 +64,8 @@ chain::Socket chain::Socket::Accept() {
 }
 
 void chain::Socket::Connect() {
-  int status = connect(fd_, reinterpret_cast<sockaddr*>(&address_f_), addrlen);
+  int status =
+      connect(fd_, reinterpret_cast<sockaddr *>(&address_f_), addrlen_);
 
   if (status < 0) {
     throw "Connection failed";

@@ -21,9 +21,8 @@ class Socket {
  public:
   Socket(FileDescriptorType fd = 0, AddressFamily address_family = AF_INET,
          SocketType = SOCK_STREAM, ProtocolType = 0);
-
   Socket(const Socket&) = delete;
-  Socket(Socket&&) noexcept;
+  Socket(Socket&& other) noexcept;
   ~Socket();
 
   Socket& operator=(const Socket&) = delete;
@@ -35,17 +34,17 @@ class Socket {
 
   void Connect();
 
-  void Close();
-
   FileDescriptorType get_file_descriptor() const noexcept;
   Address get_address_f() const noexcept;
 
  private:
+  void Close();
+
   SocketType socket_type_;
   FileDescriptorType fd_;
 
   Address address_f_;
-  socklen_t addrlen;
+  socklen_t addrlen_;
 };
 
 }  // namespace chain
