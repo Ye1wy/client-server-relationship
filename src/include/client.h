@@ -1,8 +1,19 @@
 #ifndef CPP_CLIENT_SERVER_RELATIONSHIP_INCLUDE_CLIENT_H
 #define CPP_CLIENT_SERVER_RELATIONSHIP_INCLUDE_CLIENT_H
 
-#include "include.h"
+#include <sys/socket.h>
+
+#include <algorithm>
+#include <condition_variable>
+#include <cstring>
+#include <iostream>
+#include <mutex>
+#include <string>
+#include <thread>
+
 #include "socket.h"
+
+#define MAX_LENGHT 64
 
 namespace chain {
 
@@ -14,15 +25,17 @@ class Client {
   void Start();
   void InputThread();
   void ProcessingThread();
-  bool SendData() const;
+  void Connect();
+  bool Send();
 
  private:
   std::string data_;
+  Socket client_socket_;
   std::mutex mtx_;
   std::condition_variable cv_;
 
-  bool data_status_;
-  Socket client_socket_;
+  bool status_send_data_;
+  bool is_connected_done_;
 
   bool Valid(const std::string verifiable) const noexcept;
   bool IsDigits(const std::string &str) const;

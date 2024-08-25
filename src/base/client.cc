@@ -5,14 +5,15 @@ chain::Client::Client()
       client_socket_(),
       mtx_(),
       cv_(),
-      data_status_(false) {};
+      status_send_data_(false),
+      is_connected_done_(false) {};
 
 void chain::Client::Start() {
   std::thread input_thread(&Client::InputThread, this);
   std::thread processing_thread(&Client::ProcessingThread, this);
 
   input_thread.join();
-  input_thread.join();
+  processing_thread.join();
 }
 
 void chain::Client::InputThread() {
@@ -23,13 +24,13 @@ void chain::Client::InputThread() {
 
     if (!Valid(tmp_data)) {
       std::cout << "You input not valide string" << std::endl;
-      return;
+      continue;
     }
 
     {
       std::lock_guard<std::mutex> lock(mtx_);
       data_ = tmp_data;
-      data_status_ = true;
+      status_send_data_ = false;
     }
 
     cv_.notify_one();
@@ -41,24 +42,31 @@ void chain::Client::ProcessingThread() {
     std::unique_lock<std::mutex> lock(mtx_);
     cv_.wait(lock);
 
-    data_status_ = false;
+    status_send_data_ = true;
 
     HandlingData(data_);
   }
 }
 
-bool chain::Client::SendData() const {
-  ssize_t send_status;
-
-  const char *c_str = data_.c_str();
-
-  send_status =
-      send(client_socket_.get_file_descriptor(), c_str, data_.length(), 0);
-
-  if (send_status == -1) {
-    std::cout << "Cannot sand data!" << std::endl;
-    return false;
+void chain::Client::Connect() {
+  if (is_connected_done_) {
+    throw std::logic_error("Client is already connected!");
   }
+
+  client_socket_.Connect();
+  is_connected_done_ = true;
+}
+
+bool chain::Client::Send() {
+  if (!status_send_data_) {
+    throw std::runtime_error("Somthing went wrong! Thread handling ERROR");
+  }
+
+  if (!is_connected_done_) {
+    throw std::logic_error("Socket Client is not connected");
+  }
+
+  client_socket_.Send(data_);
 
   return true;
 }
@@ -66,9 +74,11 @@ bool chain::Client::SendData() const {
 void chain::Client::HandlingData(std::string &data) noexcept {
   std::sort(data.begin(), data.end());
 
-  for (auto it = data.begin(); it != data.end(); ++it) {
-    std::cout << *it << std::endl;
-  }
+  // for (auto it = data.begin(); it != data.end(); ++it) {
+  //   std::cout << *it << std::endl;
+  // }
+
+  std::cout << "all sorted" << std::endl;
 }
 
 bool chain::Client::IsDigits(const std::string &str) const {
