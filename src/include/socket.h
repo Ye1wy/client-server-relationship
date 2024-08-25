@@ -1,8 +1,14 @@
 #ifndef CPP_CLIENT_SERVER_RELATIONSHIP_INCLUDE_SOCKET_H
 #define CPP_CLIENT_SERVER_RELATIONSHIP_INCLUDE_SOCKET_H
 
-// #include "address.h"
-#include "include.h"
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include <stdexcept>
+
+#define PORT 8080
 
 namespace chain {
 
@@ -28,14 +34,14 @@ class Socket {
          SocketType = SOCK_STREAM, ProtocolType = 0);
   Socket(const Socket&) = delete;
   Socket(Socket&& other) noexcept;
-  ~Socket();
+  virtual ~Socket();
 
   Socket& operator=(const Socket&) = delete;
   Socket& operator=(Socket&&) = delete;
 
   void Bind();
-  void Listen();
-  FileDescriptorType Accept();
+  void Listen(int backlog = 3);
+  Socket Accept();
 
   void Connect();
 
