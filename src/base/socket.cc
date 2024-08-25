@@ -64,7 +64,7 @@ void chain::Socket::Connect() {
     throw std::runtime_error("Connection failed");
   }
 
-  status_ = chain::SocketStatus::kClose;
+  status_ = chain::SocketStatus::kConnected;
 }
 
 void chain::Socket::Send(std::string data) {
