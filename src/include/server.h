@@ -11,13 +11,17 @@ class Server {
   Server();
   ~Server() = default;
 
-  void ReadData();
-  void Analyse();
+  void Run();
+
+  int is_work() const noexcept;
 
  private:
+  void HandleClient(Socket&& client_socket);
+  void Analyse();
+
   std::string data_;
   Socket server_socket_;
-  FileDescriptorType new_socket_after_accept;
+  bool server_work_status_;
 };
 }  // namespace chain
 
