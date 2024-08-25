@@ -1,9 +1,9 @@
-#include "include/socket.h"
+#include "../include/socket.h"
 
 chain::Socket::Socket(FileDescriptorType fd, AddressFamily address_family,
                       SocketType socket_type, ProtocolType protocol)
     : socket_type_(socket_type),
-      fd_(socket(address_family, socket_type, protocol)),
+      fd_(fd = socket(address_family, socket_type, protocol)),
       status_(chain::SocketStatus::kConnected) {
   if (fd_ < 0) {
     status_ = chain::SocketStatus::kErrorSocketOpen;
@@ -63,6 +63,26 @@ void chain::Socket::Connect() {
     status_ = chain::SocketStatus::kErrorConnect;
     throw std::runtime_error("Connection failed");
   }
+
+  status_ = chain::SocketStatus::kClose;
+}
+
+void chain::Socket::Send(std::string data) {
+  if (status_ == chain::SocketStatus::kClose) {
+    throw std::runtime_error("Socket is closed");
+  }
+
+  ssize_t bytes_send =
+      send(get_file_descriptor(), data.c_str(), data.length(), 0);
+
+  if (bytes_send == -1) {
+    status_ = chain::SocketStatus::kErrorSandData;
+    throw std::runtime_error("Cannot sand data");
+
+  } else if (static_cast<std::size_t>(bytes_send) < data.length()) {
+    status_ = chain::SocketStatus::kErrorSandData;
+    throw std::runtime_error("Partial data send");
+  }
 }
 
 void chain::Socket::Close() {
@@ -70,6 +90,8 @@ void chain::Socket::Close() {
     close(fd_);
     fd_ = -1;
   }
+
+  status_ = chain::SocketStatus::kClose;
 }
 
 chain::FileDescriptorType chain::Socket::get_file_descriptor() const noexcept {

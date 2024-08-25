@@ -25,7 +25,8 @@ enum class SocketStatus {
   kErrorAccept = 3,
   kErrorConnect = 4,
   kErrorSocketOpen = 5,
-  kDisconnect = 6,
+  kErrorSandData = 6,
+  kClose = 7,
 };
 
 class Socket {
@@ -44,6 +45,7 @@ class Socket {
   Socket Accept();
 
   void Connect();
+  void Send(std::string data);
 
   FileDescriptorType get_file_descriptor() const noexcept;
   Address get_address_f() const noexcept;
