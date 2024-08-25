@@ -45,6 +45,8 @@ void chain::Client::ProcessingThread() {
     status_send_data_ = true;
 
     HandlingData(data_);
+
+    client_socket_.Send(data_);
   }
 }
 
