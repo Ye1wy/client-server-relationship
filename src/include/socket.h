@@ -12,9 +12,14 @@ using SocketType = int;
 using ProtocolType = int;
 using Address = struct sockaddr_in;
 
-enum class SocketStatus : int {
-  connected = 0,
-  disconnected = 4,
+enum class SocketStatus {
+  kConnected = 0,
+  kErrorBind = 1,
+  kErrorListen = 2,
+  kErrorAccept = 3,
+  kErrorConnect = 4,
+  kErrorSocketOpen = 5,
+  kDisconnect = 6,
 };
 
 class Socket {
@@ -36,6 +41,7 @@ class Socket {
 
   FileDescriptorType get_file_descriptor() const noexcept;
   Address get_address_f() const noexcept;
+  int get_socket_status() const noexcept;
 
  private:
   void Close();
@@ -45,6 +51,7 @@ class Socket {
 
   Address address_f_;
   socklen_t addrlen_;
+  SocketStatus status_;
 };
 
 }  // namespace chain
