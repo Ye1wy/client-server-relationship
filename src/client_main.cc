@@ -1,8 +1,17 @@
+#include <iostream>
+
 #include "include/client.h"
 
 int main() {
-  chain::Client net;
+  try {
+    chain::Client client;
 
-  while (1) {
+    client.Connect();
+    client.Start();
+
+  } catch (const std::exception& e) {
+    std::cerr << "Client error: " << e.what() << std::endl;
   }
+
+  return 0;
 }
