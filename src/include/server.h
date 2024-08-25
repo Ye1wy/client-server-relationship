@@ -1,7 +1,10 @@
 #ifndef CPP_CLIENT_SERVER_RELATIONSHIP_INCLUDE_SERVER_H
 #define CPP_CLIENT_SERVER_RELATIONSHIP_INCLUDE_SERVER_H
 
-#include "include.h"
+#include <sys/socket.h>
+
+#include <iostream>
+
 #include "socket.h"
 
 namespace chain {
