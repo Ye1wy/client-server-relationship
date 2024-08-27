@@ -3,11 +3,12 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <iostream>
 #include <stdexcept>
-
 #define PORT 8080
 
 namespace chain {
@@ -19,14 +20,8 @@ using ProtocolType = int;
 using Address = struct sockaddr_in;
 
 enum class SocketStatus {
-  kConnected = 0,
-  kErrorBind = 1,
-  kErrorListen = 2,
-  kErrorAccept = 3,
-  kErrorConnect = 4,
-  kErrorSocketOpen = 5,
-  kErrorSandData = 6,
-  kClose = 7,
+  kSocketUp = 0,
+  kStop = 1,
 };
 
 class Socket {
@@ -35,29 +30,31 @@ class Socket {
          SocketType = SOCK_STREAM, ProtocolType = 0);
   Socket(const Socket&) = delete;
   Socket(Socket&& other) noexcept;
-  virtual ~Socket();
+  ~Socket();
 
   Socket& operator=(const Socket&) = delete;
-  Socket& operator=(Socket&&) = delete;
+  Socket& operator=(Socket&&) noexcept;
 
   void Bind();
-  void Listen(int backlog = 3);
+  void Listen(int backlog = 5);
   Socket Accept();
 
   void Connect();
-  void Send(std::string data);
+  std::string Send(std::string data);
+  void Stop();
 
   FileDescriptorType get_file_descriptor() const noexcept;
-  Address get_address_f() const noexcept;
+  AddressFamily get_address_f() const noexcept;
+  Address get_address() const noexcept;
+  SocketType get_socket_type() const noexcept;
   int get_socket_status() const noexcept;
 
  private:
-  void Close();
-
   SocketType socket_type_;
   FileDescriptorType fd_;
 
-  Address address_f_;
+  AddressFamily address_f_;
+  Address address_;
   socklen_t addrlen_;
   SocketStatus status_;
 };

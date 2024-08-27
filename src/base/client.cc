@@ -23,7 +23,7 @@ void chain::Client::InputThread() {
     std::cin >> tmp_data;
 
     if (!Valid(tmp_data)) {
-      std::cout << "You input not valide string" << std::endl;
+      std::cout << "Client: You input not valide string" << std::endl;
       continue;
     }
 
@@ -46,31 +46,31 @@ void chain::Client::ProcessingThread() {
 
     HandlingData(data_);
 
-    client_socket_.Send(data_);
+    Send();
   }
 }
 
 void chain::Client::Connect() {
   if (is_connected_done_) {
-    throw std::logic_error("Client is already connected!");
-  }
+    std::cout << "Client: you already connected!" << std::endl;
 
-  client_socket_.Connect();
-  is_connected_done_ = true;
+  } else {
+    client_socket_.Connect();
+    is_connected_done_ = true;
+  }
 }
 
-bool chain::Client::Send() {
+void chain::Client::Send() {
   if (!status_send_data_) {
     throw std::runtime_error("Somthing went wrong! Thread handling ERROR");
   }
 
   if (!is_connected_done_) {
-    throw std::logic_error("Socket Client is not connected");
+    throw std::runtime_error("You dont connected!");
   }
 
-  client_socket_.Send(data_);
-
-  return true;
+  std::string send_status = client_socket_.Send(data_);
+  std::cout << "Client: " << send_status << std::endl;
 }
 
 void chain::Client::HandlingData(std::string &data) noexcept {
@@ -80,7 +80,7 @@ void chain::Client::HandlingData(std::string &data) noexcept {
   //   std::cout << *it << std::endl;
   // }
 
-  std::cout << "all sorted" << std::endl;
+  std::cout << "Client: Data sorted" << std::endl;
 }
 
 bool chain::Client::IsDigits(const std::string &str) const {
@@ -103,4 +103,27 @@ bool chain::Client::Valid(const std::string verifiable) const noexcept {
   }
 
   return true;
+}
+
+void chain::Client::Reconnect() {
+  while (!is_connected_done_) {
+    try {
+      std::cout << "Client: Attemting to reconnect..." << std::endl;
+      client_socket_.Connect();
+      is_connected_done_ = true;
+      std::cout << "Client: Reconnected successfully" << std::endl;
+
+    } catch (const std::exception &e) {
+      std::cerr << "Client: Reconnect failed: " << e.what() << std::endl;
+      std::this_thread::sleep_for(std::chrono::seconds(RECONNECT_INTERVAL));
+    }
+  }
+}
+
+void chain::Client::AttemptReconnect() {
+  if (is_connected_done_) {
+    is_connected_done_ = false;
+    client_socket_.Stop();
+    Reconnect();
+  }
 }

@@ -19,11 +19,12 @@ class Server {
   int is_work() const noexcept;
 
  private:
-  void HandleClient(Socket&& client_socket);
+  void HandleClient();
   void Analyse();
 
   std::string data_;
-  Socket server_socket_;
+  Socket server_listener_;
+  Socket client_connections_;
   bool server_work_status_;
 };
 }  // namespace chain

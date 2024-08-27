@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 
 #include <algorithm>
+#include <chrono>
 #include <condition_variable>
 #include <cstring>
 #include <iostream>
@@ -14,6 +15,7 @@
 #include "socket.h"
 
 #define MAX_LENGHT 64
+#define RECONNECT_INTERVAL 5
 
 namespace chain {
 
@@ -26,7 +28,10 @@ class Client {
   void InputThread();
   void ProcessingThread();
   void Connect();
-  bool Send();
+  void Send();
+
+  void Reconnect();
+  void AttemptReconnect();
 
  private:
   std::string data_;

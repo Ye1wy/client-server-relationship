@@ -10,7 +10,7 @@ int main() {
     client.Start();
 
   } catch (const std::exception& e) {
-    std::cerr << "Client error: " << e.what() << std::endl;
+    std::cerr << "Client: " << e.what() << std::endl;
   }
 
   return 0;
