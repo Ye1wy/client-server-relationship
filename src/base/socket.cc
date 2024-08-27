@@ -77,9 +77,6 @@ void chain::Socket::Listen(int backlog) {
 }
 
 chain::Socket chain::Socket::Accept() {
-  // Address new_address;
-  // socklen_t new_address_length = sizeof(new_address);
-
   FileDescriptorType new_socket;
   new_socket = accept(get_file_descriptor(),
                       reinterpret_cast<sockaddr *>(&address_), &addrlen_);
@@ -127,6 +124,8 @@ void chain::Socket::SocketUp() {
   if (fd_ < 0) {
     throw std::runtime_error("Socket failed");
   }
+
+  status_ = chain::SocketStatus::kSocketUp;
 }
 
 void chain::Socket::Stop() {
