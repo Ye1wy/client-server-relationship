@@ -27,6 +27,7 @@ void chain::Server::Run() {
           buffer[bytes_read] = '\0';
           data_ = buffer;
           Analyse();
+          client_connections_.Send("Catch");
 
         } else if (bytes_read == 0) {
           std::cout << "Server: Client disconnected" << std::endl;

@@ -40,7 +40,7 @@ class Client {
   std::condition_variable cv_;
 
   bool status_send_data_;
-  bool is_connected_done_;
+  bool is_connection_made_;
 
   bool Valid(const std::string verifiable) const noexcept;
   bool IsDigits(const std::string &str) const;

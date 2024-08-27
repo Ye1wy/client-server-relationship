@@ -90,9 +90,11 @@ chain::Socket chain::Socket::Accept() {
 
 bool chain::Socket::Connect() {
   if (connect(fd_, reinterpret_cast<sockaddr *>(&address_), addrlen_) < 0) {
-    std::cout << "Connection failed" << std::endl;
+    std::cout << "Connection failed! Try reconnecting to the server or try "
+                 "again later"
+              << std::endl;
     perror("Error:");
-    std::cout << "Error code: " << errno << std::endl;
+    std::cout << "Error code: " << errno << std::endl << std::endl;
     return false;
   }
 

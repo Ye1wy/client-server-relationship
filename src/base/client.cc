@@ -6,7 +6,7 @@ chain::Client::Client()
       mtx_(),
       cv_(),
       status_send_data_(false),
-      is_connected_done_(false) {};
+      is_connection_made_(false) {};
 
 void chain::Client::Start() {
   std::thread input_thread(&Client::InputThread, this);
@@ -24,7 +24,7 @@ void chain::Client::InputThread() {
 
     if (tmp_data == "reconnect") {
       std::cout << "Reconnect initialized..." << std::endl;
-      is_connected_done_ = false;
+      is_connection_made_ = false;
       AttemptReconnect();
       continue;
     }
@@ -58,11 +58,11 @@ void chain::Client::ProcessingThread() {
 }
 
 bool chain::Client::Connect() {
-  if (is_connected_done_) {
+  if (is_connection_made_) {
     std::cout << "Client: you already connected!" << std::endl;
 
   } else if (client_socket_.Connect()) {
-    is_connected_done_ = true;
+    is_connection_made_ = true;
     return true;
   }
 
@@ -74,7 +74,7 @@ void chain::Client::Send() {
     throw std::runtime_error("Somthing went wrong! Thread handling ERROR");
   }
 
-  if (!is_connected_done_) {
+  if (!is_connection_made_) {
     std::cout
         << "You don't connected! Type *reconnect* and try sand data again!"
         << std::endl;
@@ -82,7 +82,22 @@ void chain::Client::Send() {
   }
 
   std::string send_status = client_socket_.Send(data_);
-  std::cout << "Client: " << send_status << std::endl;
+
+  char buffer[1024] = {0};
+  int bytes_read =
+      recv(client_socket_.get_file_descriptor(), buffer, sizeof(buffer), 0);
+
+  if (bytes_read > 0) {
+    std::cout << "Client: " << send_status << std::endl;
+
+  } else if (bytes_read == 0) {
+    std::cout << "Client: Server is unreacheble! Reconnect to server"
+              << std::endl;
+
+  } else if (bytes_read == -1) {
+    perror("Client: Read error");
+    std::cout << "Error code: " << errno << std::endl;
+  }
 }
 
 void chain::Client::HandlingData(std::string &data) noexcept {
@@ -118,12 +133,13 @@ bool chain::Client::Valid(const std::string verifiable) const noexcept {
 }
 
 void chain::Client::Reconnect() {
-  while (!is_connected_done_) {
+  while (!is_connection_made_) {
     try {
       std::cout << "Client: Attemting to reconnect..." << std::endl;
       if (Connect()) {
-        is_connected_done_ = true;
+        is_connection_made_ = true;
         std::cout << "Client: Reconnected successfully" << std::endl;
+        std::cout << std::endl;
 
       } else {
         break;
@@ -137,7 +153,7 @@ void chain::Client::Reconnect() {
 }
 
 void chain::Client::AttemptReconnect() {
-  if (!is_connected_done_) {
+  if (!is_connection_made_) {
     client_socket_.Stop();
     client_socket_.SocketUp();
     Reconnect();
