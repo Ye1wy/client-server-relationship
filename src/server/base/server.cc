@@ -1,10 +1,7 @@
 #include "../include/server.h"
 
 chain::Server::Server()
-    : data_(),
-      server_listener_(),
-      // client_connections_(),
-      server_work_status_(true) {
+    : data_(), server_listener_(), server_work_status_(true) {
   server_listener_.Bind();
   server_listener_.Listen();
 }
@@ -13,9 +10,9 @@ void chain::Server::Run() {
   while (true) {
     try {
       Socket client_connections_(
-          server_listener_.Accept());  // Принимаем соединение
+          server_listener_.Accept());  // accepting connection
 
-      // Начинается обработка клиента
+      // Handle client data
       bool client_connected = true;
 
       while (client_connected) {

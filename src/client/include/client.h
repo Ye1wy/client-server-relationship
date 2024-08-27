@@ -12,7 +12,7 @@
 #include <string>
 #include <thread>
 
-#include "socket.h"
+#include "../../socket/include/socket.h"
 
 #define MAX_LENGHT 64
 #define RECONNECT_INTERVAL 5
