@@ -1,7 +1,6 @@
 #include "../include/server.h"
 
-chain::Server::Server()
-    : data_(), server_listener_(), server_work_status_(true) {
+chain::Server::Server() : server_listener_(), server_work_status_(true) {
   server_listener_.Bind();
   server_listener_.Listen();
 }
@@ -22,8 +21,7 @@ void chain::Server::Run() {
 
         if (bytes_read > 0) {
           buffer[bytes_read] = '\0';
-          data_ = buffer;
-          Analyse();
+          Analyse(buffer);
           client_connections_.Send("Catch");
 
         } else if (bytes_read == 0) {
@@ -44,8 +42,15 @@ void chain::Server::Run() {
   }
 }
 
-void chain::Server::Analyse() {
-  std::cout << "Taked data: " << data_ << std::endl;
+void chain::Server::Analyse(std::string data) {
+  int value = std::stoi(data);
+
+  if ((data.length() >= 2) and ((value % 32) == 0)) {
+    std::cout << "Server: Data is taked" << std::endl;
+
+  } else {
+    std::cout << "Server: Error: Inappropriate data" << std::endl;
+  }
 }
 
 int chain::Server::is_work() const noexcept { return server_work_status_; }

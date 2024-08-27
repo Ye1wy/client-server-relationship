@@ -25,13 +25,7 @@ class Client {
   ~Client() = default;
 
   void Start();
-  void InputThread();
-  void ProcessingThread();
   bool Connect();
-  void Send();
-
-  void Reconnect();
-  void AttemptReconnect();
 
  private:
   std::string data_;
@@ -42,9 +36,16 @@ class Client {
   bool status_send_data_;
   bool is_connection_made_;
 
+  void Send(std::string data);
+  void Reconnect();
+  void AttemptReconnect();
+  void InputThread();
+  void ProcessingThread();
+
   bool Valid(const std::string verifiable) const noexcept;
   bool IsDigits(const std::string &str) const;
-  void HandlingData(std::string &data) noexcept;
+  void PrimaryProcessing(std::string &data) noexcept;
+  int SecondaryProcessing() noexcept;
 };
 }  // namespace chain
 
