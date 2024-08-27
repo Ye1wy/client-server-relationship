@@ -39,21 +39,25 @@ class Socket {
   void Listen(int backlog = 5);
   Socket Accept();
 
-  void Connect();
+  bool Connect();
   std::string Send(std::string data);
+
+  void SocketUp();
   void Stop();
 
   FileDescriptorType get_file_descriptor() const noexcept;
   AddressFamily get_address_f() const noexcept;
-  Address get_address() const noexcept;
   SocketType get_socket_type() const noexcept;
+  ProtocolType get_protocol_type() const noexcept;
+  Address get_address() const noexcept;
   int get_socket_status() const noexcept;
 
  private:
-  SocketType socket_type_;
   FileDescriptorType fd_;
-
   AddressFamily address_f_;
+  SocketType socket_type_;
+  ProtocolType protocol_;
+
   Address address_;
   socklen_t addrlen_;
   SocketStatus status_;

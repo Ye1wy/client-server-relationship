@@ -27,7 +27,7 @@ class Client {
   void Start();
   void InputThread();
   void ProcessingThread();
-  void Connect();
+  bool Connect();
   void Send();
 
   void Reconnect();

@@ -22,6 +22,13 @@ void chain::Client::InputThread() {
   while (true) {
     std::cin >> tmp_data;
 
+    if (tmp_data == "reconnect") {
+      std::cout << "Reconnect initialized..." << std::endl;
+      is_connected_done_ = false;
+      AttemptReconnect();
+      continue;
+    }
+
     if (!Valid(tmp_data)) {
       std::cout << "Client: You input not valide string" << std::endl;
       continue;
@@ -50,14 +57,16 @@ void chain::Client::ProcessingThread() {
   }
 }
 
-void chain::Client::Connect() {
+bool chain::Client::Connect() {
   if (is_connected_done_) {
     std::cout << "Client: you already connected!" << std::endl;
 
-  } else {
-    client_socket_.Connect();
+  } else if (client_socket_.Connect()) {
     is_connected_done_ = true;
+    return true;
   }
+
+  return false;
 }
 
 void chain::Client::Send() {
@@ -66,7 +75,10 @@ void chain::Client::Send() {
   }
 
   if (!is_connected_done_) {
-    throw std::runtime_error("You dont connected!");
+    std::cout
+        << "You don't connected! Type *reconnect* and try sand data again!"
+        << std::endl;
+    return;
   }
 
   std::string send_status = client_socket_.Send(data_);
@@ -109,9 +121,13 @@ void chain::Client::Reconnect() {
   while (!is_connected_done_) {
     try {
       std::cout << "Client: Attemting to reconnect..." << std::endl;
-      client_socket_.Connect();
-      is_connected_done_ = true;
-      std::cout << "Client: Reconnected successfully" << std::endl;
+      if (Connect()) {
+        is_connected_done_ = true;
+        std::cout << "Client: Reconnected successfully" << std::endl;
+
+      } else {
+        break;
+      }
 
     } catch (const std::exception &e) {
       std::cerr << "Client: Reconnect failed: " << e.what() << std::endl;
@@ -121,9 +137,9 @@ void chain::Client::Reconnect() {
 }
 
 void chain::Client::AttemptReconnect() {
-  if (is_connected_done_) {
-    is_connected_done_ = false;
+  if (!is_connected_done_) {
     client_socket_.Stop();
+    client_socket_.SocketUp();
     Reconnect();
   }
 }
